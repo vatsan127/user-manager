@@ -1,12 +1,14 @@
 package com.github.user_manager.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.sql.Timestamp;
 
+@Data
 @Entity
 @Table(name = "user_profiles")
-public class UserProfile {
+public class UserProfiles {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
