@@ -2,8 +2,8 @@ server:
   port: 8080
   servlet:
     context-path: /${spring.application.name}/${spring.application.version}
-
 ---
+
 spring:
   application:
     name: user-manager
@@ -12,23 +12,8 @@ spring:
   banner.location: banner.txt
   jpa:
     open-in-view: false
-    hibernate.ddl-auto: none # none create update
+    hibernate.ddl-auto: update # none create update
     show-sql: true
+    properties.hibernate.format_sql: true
   sql.init.mode: never # always
   output.ansi.enabled: always
-
----
-spring:
-  config.activate.on-profile: postgres
-  datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:5432/postgres?currentSchema=public
-    username: ${DB_USERNAME:srivatsan}
-    password: ${DB_PASSWORD:password}
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 30
-      minimum-idle: 15
-      pool-name: postgres-con
-      auto-commit: false
-
----
