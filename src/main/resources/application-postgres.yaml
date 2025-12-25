@@ -6,7 +6,7 @@ spring:
     password: password
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 30
-      minimum-idle: 15
+      maximum-pool-size: 10
+      minimum-idle: 10
       pool-name: postgres-con
       auto-commit: false
