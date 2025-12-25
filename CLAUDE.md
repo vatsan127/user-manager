@@ -49,7 +49,7 @@ The application uses PostgreSQL with configuration in `application-postgres.yaml
 - `controller/` - REST API endpoint implementations
 - `entity/` - JPA entities with one-to-one relationship
 - `repository/` - Spring Data JPA repositories
-- `service/` - Business logic layer with transaction management
+- `service/` - Business logic layer
 
 ### One-to-One Relationship Implementation
 
@@ -76,7 +76,6 @@ This is NOT a bidirectional relationship - UserProfiles has no `mappedBy` annota
 6. **Timestamp Management**: `@CreationTimestamp` on UserProfiles.createdAt for automatic timestamp generation
 7. **AOP Logging**: Centralized logging via `LoggingAspect` - logs method entry, exit, execution time, and exceptions
 8. **API Contract Pattern**: Swagger annotations defined in `api` package interfaces, implemented by controllers
-9. **Transaction Management**: `@Transactional` on service layer methods for data consistency
 
 ## API Documentation
 
@@ -136,7 +135,7 @@ ClassName :: methodName :: Exception :: executionTime=10ms :: error=...
 
 4. **Service Layer Pattern**:
    - Business logic encapsulated in service layer
-   - Transaction boundaries defined with `@Transactional`
+   - Delegates to repositories for data access
 
 5. **DTO Pattern** (Not Implemented):
    - Currently exposes entities directly

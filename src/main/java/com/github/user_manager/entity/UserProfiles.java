@@ -2,6 +2,7 @@ package com.github.user_manager.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 
@@ -23,11 +24,11 @@ public class UserProfiles {
     @Column(nullable = false, length = 20)
     private String phoneNumber;
 
+    @CreationTimestamp
     @Column(
             name = "created_at",
             nullable = false,
-            updatable = false,
-            columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+            updatable = false
     )
     private Timestamp createdAt;
 }
