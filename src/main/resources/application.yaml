@@ -8,7 +8,7 @@ spring:
   application:
     name: user-manager
     version: v1
-  profiles.active: ${SPRING_PROFILES_ACTIVE:postgres}
+  profiles.active: postgres
   banner.location: banner.txt
   jpa:
     open-in-view: false
@@ -17,3 +17,9 @@ spring:
     properties.hibernate.format_sql: true
   sql.init.mode: never # always
   output.ansi.enabled: always
+---
+
+springdoc:
+  api-docs.path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

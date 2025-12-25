@@ -1,0 +1,35 @@
+\l
+\d
+\dt
+\ds
+[200~## Database SetUp
+CREATE DATABASE employees;
+\c employees
+## Database SetUp
+CREATE DATABASE employees;
+\c employees
+CREATE SCHEMA employees;
+CREATE DATABASE employees;
+\c employees
+CREATE SCHEMA employees;
+create database employees
+;
+\c employees 
+create schema employees;
+create table employees;
+create table employees (name varchar, id int);
+\dt
+\ds
+\l
+/c
+;
+\c
+create database user_db;
+\q
+\dt
+\c
+\s
+\c public
+create schema public;
+\c user_db.public
+\s public

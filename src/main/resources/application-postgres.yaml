@@ -1,9 +1,9 @@
 spring:
   config.activate.on-profile: postgres
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:5432/postgres?currentSchema=public
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    url: jdbc:postgresql://localhost:5432/user_db?currentSchema=public
+    username: srivatsan
+    password: password
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 30
