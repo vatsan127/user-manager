@@ -2,9 +2,30 @@
 
 A Spring Boot application demonstrating JPA one-to-one relationship mapping between Users and UserProfiles entities.
 
-**Technology Stack**: Java 21, Spring Boot 4.0.1, PostgreSQL, JPA/Hibernate, Lombok
+**Technology Stack**: Java 21, Spring Boot 4.0.1, PostgreSQL, JPA/Hibernate, Lombok, Spring AOP
 
 **API Documentation**: [Swagger UI](http://localhost:8080/user-manager/v1/swagger-ui.html)
+
+## Quick Start
+
+```bash
+# Run the application
+./mvnw spring-boot:run
+
+# Access Swagger UI
+http://localhost:8080/user-manager/v1/swagger-ui.html
+```
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/user-manager/v1/users` | Get all users with profiles |
+| POST | `/user-manager/v1/users` | Create new user |
+| PUT | `/user-manager/v1/users/{id}` | Update user |
+| DELETE | `/user-manager/v1/users/{id}` | Delete user |
+
+All endpoints include request/response examples in Swagger UI.
 
 ---
 
