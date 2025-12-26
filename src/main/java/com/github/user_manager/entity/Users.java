@@ -18,7 +18,7 @@ public class Users {
     @Column(nullable = false, length = 50)
     private String lastName;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(
             name = "profile_id",
             referencedColumnName = "id",
