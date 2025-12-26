@@ -12,7 +12,7 @@ spring:
   banner.location: banner.txt
   jpa:
     open-in-view: false
-    hibernate.ddl-auto: update # none create update
+    hibernate.ddl-auto: none # none create update
     show-sql: true
     properties.hibernate.format_sql: true
   sql.init.mode: never # always

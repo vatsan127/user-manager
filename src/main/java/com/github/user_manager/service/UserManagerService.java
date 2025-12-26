@@ -24,6 +24,7 @@ public class UserManagerService {
     }
 
     public Users saveUser(Users user) {
+        // Todo: what happens when the profile is not present ? will the user data be inserted ?
         // If user has a profile, save it first (since there's no cascade configured)
         if (user.getUserProfiles() != null) {
             UserProfiles profile = user.getUserProfiles();
@@ -73,6 +74,7 @@ public class UserManagerService {
         usersRepository.delete(user);
 
         // Optionally delete the associated profile if it exists
+        // Todo: Cascade should delete automatically right ?
         if (user.getUserProfiles() != null) {
             userProfilesRepository.delete(user.getUserProfiles());
         }
