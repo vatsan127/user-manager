@@ -53,18 +53,16 @@ The application uses PostgreSQL with configuration in `application-postgres.yaml
 
 ### One-to-One Relationship Implementation
 
-The core architecture demonstrates a **unidirectional one-to-one** relationship:
+The core architecture demonstrates a **bidirectional one-to-one** relationship:
 
 **Users (Owning Side)**
 - Contains the foreign key (`profile_id`) to UserProfiles
-- Uses `@OneToOne` with `@JoinColumn` to define the relationship
+- Uses `@OneToOne(cascade = CascadeType.ALL)` with `@JoinColumn` to define the relationship
 - The foreign key constraint is named `FK_USER_TO_PROFILE`
 
-**UserProfiles (Referenced Side)**
-- Does NOT have a back-reference to Users (unidirectional)
-- Standalone entity that can exist independently
-
-This is NOT a bidirectional relationship - UserProfiles has no `mappedBy` annotation or reference back to Users.
+**UserProfiles (Inverse Side)**
+- Has a back-reference to Users via `@OneToOne(mappedBy = "userProfiles")`
+- Can be managed independently via ProfilesController
 
 ### Key Implementation Details
 
@@ -82,7 +80,7 @@ This is NOT a bidirectional relationship - UserProfiles has no `mappedBy` annota
 **Swagger UI**: http://localhost:8080/user-manager/v1/swagger-ui.html
 **OpenAPI Spec**: http://localhost:8080/user-manager/v1/api-docs
 
-### Endpoints
+### User Endpoints
 
 | Method | Endpoint | Description | Response |
 |--------|----------|-------------|----------|
@@ -91,6 +89,16 @@ This is NOT a bidirectional relationship - UserProfiles has no `mappedBy` annota
 | PUT | `/users/{id}` | Update existing user and profile | 200 OK |
 | DELETE | `/users/{id}` | Delete user and associated profile | 204 No Content |
 
+### Profile Endpoints
+
+| Method | Endpoint | Description | Response |
+|--------|----------|-------------|----------|
+| GET | `/profiles` | Retrieve all profiles | 200 OK |
+| GET | `/profiles/{id}` | Retrieve profile by id | 200 OK |
+| POST | `/profiles` | Create standalone profile | 201 Created |
+| PUT | `/profiles/{id}` | Update profile | 200 OK |
+| DELETE | `/profiles/{id}` | Delete profile | 204 No Content |
+
 **Full API Path**: `http://localhost:8080/user-manager/v1{endpoint}`
 
 ## Important Notes
@@ -98,8 +106,7 @@ This is NOT a bidirectional relationship - UserProfiles has no `mappedBy` annota
 - The application uses constructor-based dependency injection (no `@Autowired`)
 - JPA configuration has `open-in-view: false` to prevent lazy loading issues
 - HikariCP connection pool configured with 30 max connections, 15 minimum idle
-- Database schema defined in `src/main/resources/OneToOne-notes.txt:130-146`
-- Detailed JPA one-to-one mapping concepts documented in `src/main/resources/OneToOne-notes.txt`
+- JPA one-to-one mapping notes documented in `README.md`
 
 ## AOP Implementation
 

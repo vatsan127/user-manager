@@ -1,5 +1,6 @@
 package com.github.user_manager.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -31,4 +32,8 @@ public class UserProfiles {
             updatable = false
     )
     private Timestamp createdAt;
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "userProfiles")
+    private Users user;
 }

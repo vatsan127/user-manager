@@ -1,33 +1,4 @@
-# User Manager - JPA One-to-One Mapping
-
-A Spring Boot application demonstrating JPA one-to-one relationship mapping between Users and UserProfiles entities.
-
-**Technology Stack**: Java 21, Spring Boot 4.0.1, PostgreSQL, JPA/Hibernate, Lombok, Spring AOP
-
-**API Documentation**: [Swagger UI](http://localhost:8080/user-manager/v1/swagger-ui.html)
-
-## Quick Start
-
-```bash
-# Run the application
-./mvnw spring-boot:run
-
-# Access Swagger UI
-http://localhost:8080/user-manager/v1/swagger-ui.html
-```
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/user-manager/v1/users` | Get all users with profiles |
-| POST | `/user-manager/v1/users` | Create new user |
-| PUT | `/user-manager/v1/users/{id}` | Update user |
-| DELETE | `/user-manager/v1/users/{id}` | Delete user |
-
-All endpoints include request/response examples in Swagger UI.
-
----
+# JPA One-to-One Mapping Notes
 
 ## Entity Relationship
 
@@ -45,32 +16,34 @@ All endpoints include request/response examples in Swagger UI.
 
 ---
 
-## ONE-TO-ONE MAPPING IN JPA - NOTES
-
-### OVERVIEW
+## Overview
 
 A one-to-one relationship means that one entity is associated with exactly one instance of another entity.
 
-### KEY CONCEPTS
+---
 
-#### 1. Bidirectional vs Unidirectional
+## Key Concepts
+
+### Bidirectional vs Unidirectional
 - **Unidirectional**: Only one entity knows about the relationship
 - **Bidirectional**: Both entities know about each other
 
-#### 2. Owning Side vs Inverse Side
+### Owning Side vs Inverse Side
 - **Owning Side**: The entity that contains the foreign key in the database
 - In unidirectional relationships, there's only one side (the owning side)
 - **Inverse Side**: The entity that references the owning side using `mappedBy`
 - The inverse side concept exists ONLY in bidirectional relationships!
 
-### IMPORTANT ANNOTATIONS
+---
 
-#### @Column
+## Important Annotations
+
+### @Column
 - Used to specify constraints and custom name
 - If name is not specified with `@Column`, Hibernate will follow snake_case
 - Column definitions can be given with SQL
 
-#### @OneToOne
+### @OneToOne
 Marks a one-to-one relationship
 
 **Attributes:**
@@ -80,9 +53,9 @@ Marks a one-to-one relationship
 - `mappedBy`: Used on the inverse side to specify the owning side
 - `orphanRemoval`: Whether to remove orphaned entities (default is false)
 
-**EXPLANATION**: An "orphan" is a child entity that's no longer referenced by its parent. If `orphanRemoval = true`, when you do `user.setProfile(null)` or `user.removeProfile()`, the orphaned UserProfile will be automatically deleted from the database. Without it, the profile remains in DB.
+**Orphan Removal Explained**: An "orphan" is a child entity that's no longer referenced by its parent. If `orphanRemoval = true`, when you do `user.setProfile(null)` or `user.removeProfile()`, the orphaned UserProfile will be automatically deleted from the database. Without it, the profile remains in DB.
 
-#### @JoinColumn
+### @JoinColumn
 Specifies the foreign key column
 
 **Attributes:**
@@ -92,13 +65,15 @@ Specifies the foreign key column
 - `unique`: Whether the foreign key should be unique
 - `foreignKey`: Foreign Key configurations
 
-**WHAT IF @JoinColumn IS NOT SPECIFIED?**
+**What if @JoinColumn is not specified?**
 - JPA will create a default foreign key column name
 - Default naming: `{property_name}_{referenced_column_name}`
 - Example: If property is "profile" and User's PK is "id", the column will be named "profile_id"
 - It's better to explicitly specify @JoinColumn for clarity!
 
-### CASCADE TYPES - DETAILED EXPLANATION
+---
+
+## Cascade Types
 
 - **CascadeType.PERSIST**: When you save (persist) a User, its UserProfile is also automatically saved
   - Example: `em.persist(user)` → profile also persisted
@@ -117,24 +92,30 @@ Specifies the foreign key column
 
 - **CascadeType.ALL**: All of the above operations cascade to related entities
 
-### FETCH TYPES
+---
+
+## Fetch Types
 
 - **FetchType.LAZY**: Related entity loaded on-demand (recommended)
 - **FetchType.EAGER**: Related entity loaded immediately (default for @OneToOne)
 
-### KEY IMPLEMENTATION POINTS
+---
+
+## Key Implementation Points
 
 1. User entity has `@OneToOne` with `@JoinColumn` (owning side)
-2. UserProfile entity has `@OneToOne` with `mappedBy` (inverse side)
+2. UserProfile entity has `@OneToOne` with `mappedBy` (inverse side) - **bidirectional relationship**
 3. Using `CascadeType.ALL` means saving a User will also save its UserProfile
-4. Using `orphanRemoval = true` means removing profile from user deletes it
-5. Using `FetchType.LAZY` improves performance by not loading profile unless needed
+4. Using `orphanRemoval = true` would mean removing profile from user deletes it
+5. Default `FetchType.EAGER` is used for @OneToOne; use `FetchType.LAZY` for better performance
 
-### COMMON PITFALLS
+---
 
-#### 1. N+1 Query Problem
+## Common Pitfalls
 
-**WHY "N+1"?** Imagine fetching 100 users:
+### N+1 Query Problem
+
+**Why "N+1"?** Imagine fetching 100 users:
 - 1 query to get all users: `SELECT * FROM users` (this is the "1")
 - Then N queries (100 queries) to get each user's profile if EAGER:
   - `SELECT * FROM user_profiles WHERE id = ?` (profile_id from user 1)
@@ -150,19 +131,30 @@ SELECT u FROM User u LEFT JOIN FETCH u.profile
 ```
 This executes only 1 query instead of 101!
 
-#### 2. Bidirectional Relationship Management
+### Bidirectional Relationship Management
 - **Issue**: Not setting both sides of the relationship
 - **Solution**: Use convenience methods to set both sides
 
-#### 3. Cascade Operations
+### Cascade Operations
 - **Issue**: Accidentally deleting related entities
 - **Solution**: Be careful with `CascadeType.REMOVE` and `orphanRemoval`
 
-#### 4. Unique Constraint
+### Unique Constraint
 - **Issue**: Forgetting to make foreign key unique
 - **Solution**: Add `unique = true` in `@JoinColumn`
 
-### DATABASE SCHEMA
+### Infinite Recursion in JSON Serialization
+- **Issue**: In bidirectional relationships, serializing to JSON causes infinite loop (User → Profile → User → ...)
+- **Solution**: Add `@JsonIgnore` on the inverse side's back-reference field
+```java
+@JsonIgnore
+@OneToOne(mappedBy = "userProfiles")
+private Users user;
+```
+
+---
+
+## Database Schema
 
 ```sql
 CREATE TABLE user_profiles (
@@ -183,7 +175,9 @@ CREATE TABLE users (
 );
 ```
 
-### SAMPLE DATA
+---
+
+## Sample Data
 
 ```sql
 INSERT INTO user_profiles (phone_number, team, unit)
