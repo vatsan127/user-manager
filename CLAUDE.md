@@ -35,9 +35,9 @@ SPRING_PROFILES_ACTIVE=postgres ./mvnw spring-boot:run
 
 The application uses PostgreSQL with configuration in `application-postgres.yaml`:
 - Host: `localhost:5432`
-- Database: `postgres`
+- Database: `user_db`
 - Schema: `public`
-- Username: `postgres`
+- Username: `srivatsan`
 - Password: `password`
 
 ## Architecture
@@ -57,7 +57,7 @@ The core architecture demonstrates a **bidirectional one-to-one** relationship:
 
 **Users (Owning Side)**
 - Contains the foreign key (`profile_id`) to UserProfiles
-- Uses `@OneToOne(cascade = CascadeType.ALL)` with `@JoinColumn` to define the relationship
+- Uses `@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)` with `@JoinColumn` to define the relationship
 - The foreign key constraint is named `FK_USER_TO_PROFILE`
 
 **UserProfiles (Inverse Side)**
@@ -67,13 +67,14 @@ The core architecture demonstrates a **bidirectional one-to-one** relationship:
 ### Key Implementation Details
 
 1. **Foreign Key Ownership**: Users entity owns the relationship via the `profile_id` column
-2. **Hibernate DDL Mode**: Set to `update` - schema changes are auto-applied
-3. **SQL Visibility**: `show-sql: true` and `format_sql: true` for debugging
-4. **Lombok Usage**: `@Data` annotation generates getters/setters/toString/equals/hashCode
-5. **Context Path**: API is served at `/user-manager/v1` (constructed from app name and version)
-6. **Timestamp Management**: `@CreationTimestamp` on UserProfiles.createdAt for automatic timestamp generation
-7. **AOP Logging**: Centralized logging via `LoggingAspect` - logs method entry, exit, execution time, and exceptions
-8. **API Contract Pattern**: Swagger annotations defined in `api` package interfaces, implemented by controllers
+2. **Orphan Removal**: `orphanRemoval = true` ensures detached profiles are deleted from DB
+3. **Hibernate DDL Mode**: Set to `none` - schema changes are not auto-applied
+4. **SQL Logging**: Via `org.hibernate.SQL=DEBUG` in logback (not `show-sql` to avoid duplicate logging)
+5. **Lombok Usage**: `@Data` annotation generates getters/setters/toString/equals/hashCode
+6. **Context Path**: API is served at `/user-manager/v1` (constructed from app name and version)
+7. **Timestamp Management**: `@CreationTimestamp` on UserProfiles.createdAt for automatic timestamp generation
+8. **AOP Logging**: Centralized logging via `LoggingAspect` - logs method entry, exit, execution time, and exceptions
+9. **API Contract Pattern**: Swagger annotations defined in `api` package interfaces, implemented by controllers
 
 ## API Documentation
 
@@ -105,7 +106,7 @@ The core architecture demonstrates a **bidirectional one-to-one** relationship:
 
 - The application uses constructor-based dependency injection (no `@Autowired`)
 - JPA configuration has `open-in-view: false` to prevent lazy loading issues
-- HikariCP connection pool configured with 30 max connections, 15 minimum idle
+- HikariCP connection pool configured with 10 max connections, 10 minimum idle
 - JPA one-to-one mapping notes documented in `README.md`
 
 ## AOP Implementation
