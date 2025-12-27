@@ -84,6 +84,41 @@ Specifies the foreign key column
 - Example: If property is "profile" and User's PK is "id", the column will be named "profile_id"
 - It's better to explicitly specify @JoinColumn for clarity!
 
+### @ForeignKey
+Used within `@JoinColumn` to specify a custom foreign key constraint name
+
+**Attributes:**
+- `name`: Name of the foreign key constraint
+
+**Example:**
+```java
+@JoinColumn(
+    name = "profile_id",
+    referencedColumnName = "id",
+    foreignKey = @ForeignKey(name = "FK_USER_TO_PROFILE")
+)
+```
+
+**Why use it?**
+- Without this, JPA generates random constraint names like `FKa1b2c3d4e5`
+- Meaningful names help with debugging and database administration
+- Easier to identify constraint violations in error messages
+
+### @CreationTimestamp (Hibernate)
+Hibernate-specific annotation for automatic timestamp generation on entity creation
+
+**Example:**
+```java
+@CreationTimestamp
+@Column(name = "created_at", nullable = false, updatable = false)
+private Timestamp createdAt;
+```
+
+**Key Points:**
+- Automatically sets the field value when the entity is first persisted
+- Use `updatable = false` in `@Column` to prevent modification after creation
+- **Related**: `@UpdateTimestamp` for tracking last modification time
+
 ---
 
 ## Cascade Types
@@ -116,8 +151,8 @@ Specifies the foreign key column
 
 ## Key Implementation Points
 
-1. User entity has `@OneToOne` with `@JoinColumn` (owning side)
-2. UserProfile entity has `@OneToOne` with `mappedBy` (inverse side) - **bidirectional relationship**
+1. Users entity has `@OneToOne` with `@JoinColumn` (owning side)
+2. UserProfiles entity has `@OneToOne` with `mappedBy` (inverse side) - **bidirectional relationship**
 3. Using `CascadeType.ALL` means saving a User will also save its UserProfile
 4. Using `orphanRemoval = true` ensures removing profile from user deletes it from DB
 5. Default `FetchType.EAGER` is used for @OneToOne; use `FetchType.LAZY` for better performance
@@ -140,13 +175,23 @@ Specifies the foreign key column
 
 **Solution**: Use LAZY fetch and JOIN FETCH when you actually need the profile
 ```sql
-SELECT u FROM User u LEFT JOIN FETCH u.profile
+SELECT u FROM Users u LEFT JOIN FETCH u.userProfiles
 ```
 This executes only 1 query instead of 101!
 
 ### Bidirectional Relationship Management
 - **Issue**: Not setting both sides of the relationship
 - **Solution**: Use convenience methods to set both sides
+
+```java
+// Convenience method in Users entity
+public void setUserProfile(UserProfiles profile) {
+    this.userProfiles = profile;
+    if (profile != null) {
+        profile.setUser(this);
+    }
+}
+```
 
 ### Cascade Operations
 - **Issue**: Accidentally deleting related entities
@@ -158,12 +203,43 @@ This executes only 1 query instead of 101!
 
 ### Infinite Recursion in JSON Serialization
 - **Issue**: In bidirectional relationships, serializing to JSON causes infinite loop (User → Profile → User → ...)
-- **Solution**: Add `@JsonIgnore` on the inverse side's back-reference field
+- **Solutions**: Multiple approaches available:
+
+**Option 1: @JsonIgnore** (Simplest - used in this project)
 ```java
 @JsonIgnore
 @OneToOne(mappedBy = "userProfiles")
 private Users user;
 ```
+- Completely excludes the field from serialization and deserialization
+- Best when you never need the back-reference in JSON
+
+**Option 2: @JsonManagedReference / @JsonBackReference**
+```java
+// Owner side (User) - serialized normally
+@JsonManagedReference
+@OneToOne
+@JoinColumn(name = "profile_id")
+private UserProfile profile;
+
+// Inverse side (UserProfile) - excluded during serialization
+@JsonBackReference
+@OneToOne(mappedBy = "profile")
+private User user;
+```
+- `@JsonManagedReference`: Forward part, serialized normally
+- `@JsonBackReference`: Back part, omitted from serialization
+- Maintains the relationship during deserialization
+
+**Option 3: @JsonIdentityInfo**
+```java
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@Entity
+public class User { ... }
+```
+- Uses object identity to handle circular references
+- First occurrence serializes full object, subsequent occurrences serialize only the ID
+- Useful when both sides need to be serialized
 
 ---
 
@@ -183,7 +259,7 @@ CREATE TABLE users (
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     profile_id INTEGER,
-    FOREIGN KEY (profile_id) REFERENCES user_profiles(id),
+    CONSTRAINT FK_USER_TO_PROFILE FOREIGN KEY (profile_id) REFERENCES user_profiles(id),
     UNIQUE (profile_id) -- Unique constraint for One-to-One relationship
 );
 ```
