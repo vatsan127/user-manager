@@ -1,5 +1,18 @@
 # JPA One-to-One Mapping Notes
 
+## Project Setup
+
+```bash
+# Create the database
+psql -d postgres
+
+create database user_db;
+
+\q
+```
+
+---
+
 ## Entity Relationship
 
 ```
