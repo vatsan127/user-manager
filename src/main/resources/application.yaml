@@ -13,7 +13,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate.ddl-auto: none # none create update
-    show-sql: true
+    show-sql: false # Not required when the org.hibernate.SQL DEBUG log is enabled.
     properties.hibernate.format_sql: true
   sql.init.mode: never # always
   output.ansi.enabled: always

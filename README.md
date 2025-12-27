@@ -106,7 +106,7 @@ Specifies the foreign key column
 1. User entity has `@OneToOne` with `@JoinColumn` (owning side)
 2. UserProfile entity has `@OneToOne` with `mappedBy` (inverse side) - **bidirectional relationship**
 3. Using `CascadeType.ALL` means saving a User will also save its UserProfile
-4. Using `orphanRemoval = true` would mean removing profile from user deletes it
+4. Using `orphanRemoval = true` ensures removing profile from user deletes it from DB
 5. Default `FetchType.EAGER` is used for @OneToOne; use `FetchType.LAZY` for better performance
 
 ---

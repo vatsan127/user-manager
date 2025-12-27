@@ -123,7 +123,7 @@ public interface UserManagerApi {
                                             {
                                                 "id": 1,
                                                 "firstName": "srivatsan",
-                                                "lastName": "narayanan",
+                                                "lastName": "n",
                                                 "userProfiles": {
                                                     "id": 1,
                                                     "unit": "customer value",
@@ -159,7 +159,7 @@ public interface UserManagerApi {
                                     value = """
                                             {
                                                 "firstName": "srivatsan",
-                                                "lastName": "narayanan",
+                                                "lastName": "n",
                                                 "userProfiles": {
                                                     "unit": "customer value",
                                                     "team": "marketing",

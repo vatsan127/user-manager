@@ -18,7 +18,7 @@ public class Users {
     @Column(nullable = false, length = 50)
     private String lastName;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(
             name = "profile_id",
             referencedColumnName = "id",
