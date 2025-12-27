@@ -55,26 +55,36 @@ The application uses PostgreSQL with configuration in `application-postgres.yaml
 
 The core architecture demonstrates a **bidirectional one-to-one** relationship:
 
+| Side | Entity | Foreign Key | Annotation |
+|------|--------|-------------|------------|
+| **Owning** | Users | ✓ `profile_id` | `@JoinColumn` |
+| **Inverse** | UserProfiles | ✗ None | `mappedBy` |
+
 **Users (Owning Side)**
 - Contains the foreign key (`profile_id`) to UserProfiles
-- Uses `@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)` with `@JoinColumn` to define the relationship
-- The foreign key constraint is named `FK_USER_TO_PROFILE`
+- Uses `@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)` with `@JoinColumn`
+- Custom FK constraint name via `@ForeignKey(name = "FK_USER_TO_PROFILE")`
 
 **UserProfiles (Inverse Side)**
 - Has a back-reference to Users via `@OneToOne(mappedBy = "userProfiles")`
+- Uses `@JsonIgnore` to prevent infinite recursion during JSON serialization
 - Can be managed independently via ProfilesController
 
 ### Key Implementation Details
 
 1. **Foreign Key Ownership**: Users entity owns the relationship via the `profile_id` column
 2. **Orphan Removal**: `orphanRemoval = true` ensures detached profiles are deleted from DB
-3. **Hibernate DDL Mode**: Set to `none` - schema changes are not auto-applied
-4. **SQL Logging**: Via `org.hibernate.SQL=DEBUG` in logback (not `show-sql` to avoid duplicate logging)
-5. **Lombok Usage**: `@Data` annotation generates getters/setters/toString/equals/hashCode
-6. **Context Path**: API is served at `/user-manager/v1` (constructed from app name and version)
-7. **Timestamp Management**: `@CreationTimestamp` on UserProfiles.createdAt for automatic timestamp generation
-8. **AOP Logging**: Centralized logging via `LoggingAspect` - logs method entry, exit, execution time, and exceptions
-9. **API Contract Pattern**: Swagger annotations defined in `api` package interfaces, implemented by controllers
+3. **Custom FK Naming**: `@ForeignKey(name = "FK_USER_TO_PROFILE")` for meaningful constraint names
+4. **JSON Serialization**: `@JsonIgnore` on inverse side prevents infinite recursion
+5. **Hibernate DDL Mode**: Set to `none` - schema changes are not auto-applied
+6. **SQL Logging**: Via `org.hibernate.SQL=DEBUG` in logback (not `show-sql` to avoid duplicate logging)
+7. **Lombok Usage**: `@Data` annotation generates getters/setters/toString/equals/hashCode
+8. **Context Path**: API is served at `/user-manager/v1` (constructed from app name and version)
+9. **Timestamp Management**: `@CreationTimestamp` on UserProfiles.createdAt for automatic timestamp generation
+10. **AOP Logging**: Centralized logging via `LoggingAspect` - logs method entry, exit, execution time, and exceptions
+11. **API Contract Pattern**: Swagger annotations defined in `api` package interfaces, implemented by controllers
+
+> **Note**: Comprehensive JPA one-to-one mapping notes (cascade types, fetch strategies, N+1 problem, pitfalls) are documented in `README.md`
 
 ## API Documentation
 
