@@ -33,6 +33,8 @@ public class UserProfiles {
     )
     private Timestamp createdAt;
 
+    // @JsonIgnore prevents infinite recursion during JSON serialization in bidirectional relationships.
+    // In a unidirectional relationship, this field and annotations is not required.
     @JsonIgnore
     @OneToOne(mappedBy = "userProfiles")
     private Users user;
