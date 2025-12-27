@@ -47,6 +47,24 @@ A one-to-one relationship means that one entity is associated with exactly one i
 - **Inverse Side**: The entity that references the owning side using `mappedBy`
 - The inverse side concept exists ONLY in bidirectional relationships!
 
+| Side | Foreign Key | @JoinColumn | mappedBy |
+|------|-------------|-------------|----------|
+| **Owning** | ✓ Has FK | ✓ Uses | ✗ No |
+| **Inverse** | ✗ No FK | ✗ No | ✓ Uses |
+
+```java
+// OWNING SIDE (Users) - has FK, no mappedBy
+@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+@JoinColumn(name = "profile_id")  // FK column
+private UserProfiles userProfiles;
+
+// INVERSE SIDE (UserProfiles) - no FK, has mappedBy
+@OneToOne(mappedBy = "userProfiles")  // references owning side's field
+private Users user;
+```
+
+**Key point**: `mappedBy = "userProfiles"` refers to the field name in the `Users` entity, telling JPA "the relationship is already mapped by that field, don't create another FK here."
+
 ---
 
 ## Important Annotations
